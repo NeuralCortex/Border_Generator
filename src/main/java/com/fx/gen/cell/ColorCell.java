@@ -7,7 +7,9 @@ package com.fx.gen.cell;
 
 import com.fx.gen.pojo.BorderData;
 import java.awt.Color;
+import javafx.geometry.Insets;
 import javafx.scene.control.TableCell;
+import javafx.scene.layout.HBox;
 
 /**
  *
@@ -28,8 +30,21 @@ public class ColorCell extends TableCell<BorderData, Color> {
             int g = item.getGreen();
             int b = item.getBlue();
             String hex = String.format("#%02x%02x%02x", r, g, b);
-            setStyle("-fx-background-color:" + hex + ";");
-            setGraphic(null);
+
+            HBox hBox = new HBox();
+            hBox.setPadding(new Insets(1));
+
+            hBox.setStyle("-fx-background-color:" + hex + ";");
+
+            getTableRow().selectedProperty().addListener((ov, o, n) -> {
+                if (n) {
+                    hBox.setStyle("-fx-background-color:#2196F3;");
+                } else if (o) {
+                    hBox.setStyle("-fx-background-color:" + hex + ";");
+                }
+            });
+
+            setGraphic(hBox);
             setText(null);
         }
     }
