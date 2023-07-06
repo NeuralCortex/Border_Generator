@@ -12,8 +12,7 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.geom.PrecisionModel;
-import org.locationtech.jts.operation.buffer.BufferOp;
-import org.locationtech.jts.operation.buffer.BufferParameters;
+import org.locationtech.jts.operation.buffer.OffsetCurve;
 
 /**
  *
@@ -60,15 +59,14 @@ public class ScaleTask extends Task<Integer> {
             posList.add(new Coordinate(position.getLon(), position.getLat()));
         }
         Position position = borderData0.getBorderPainter().getBorder().get(0);
-        posList.add(new Coordinate(position.getLon(),position.getLat()));
+        posList.add(new Coordinate(position.getLon(), position.getLat()));
 
         Polygon polygon = geometryFactory.createPolygon(posList.stream().toArray(Coordinate[]::new));
         double dist = borderData.getDist() / 100.0;
-        BufferParameters bufferParameters=new BufferParameters();
-        bufferParameters.setSingleSided(true);
-        bufferParameters.setQuadrantSegments(180);
-        //Geometry geometry = polygon.buffer(dist, bufferParameters);
-        Geometry geometry = BufferOp.bufferOp(polygon, dist, bufferParameters);
+
+        Geometry geometry = OffsetCurve.getCurve(polygon, dist);
+        System.out.println("" + geometry.getNumGeometries());
+        geometry = geometry.getGeometryN(0);
 
         List<Position> scaleList = new ArrayList<>();
         Coordinate coordinates[] = geometry.getCoordinates();
@@ -81,7 +79,7 @@ public class ScaleTask extends Task<Integer> {
 
         return 1;
     }
-    
+
     @Override
     protected void succeeded() {
         progressDialog.closeDialog();
