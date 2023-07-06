@@ -31,7 +31,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
-import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -160,6 +159,15 @@ public class MapController implements Initializable, PopulateInterface {
         tableInfo.getColumns().addAll(colParam, colValue);
 
         tableInfo.getSelectionModel().selectedItemProperty().addListener((ov, o, n) -> {
+            tableScale.getItems().clear();
+            painters.clear();
+            mapLoad.clear();
+            mapBorder.clear();
+
+            CompoundPainter<JXMapViewer> painter = new CompoundPainter<>(painters);
+            mapViewer.setOverlayPainter(painter);
+            mapViewer.repaint();
+
             loadPolygon(n);
         });
 
