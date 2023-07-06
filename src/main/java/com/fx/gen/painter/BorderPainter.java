@@ -82,9 +82,9 @@ public class BorderPainter implements Painter<JXMapViewer> {
                 path.moveTo(pt.getX(), pt.getY());
                 first = false;
             } else {
-                if (i % 21 == 0 || i % 22 == 0) {
+                //if (i % 21 == 0 || i % 22 == 0) {
                     path.lineTo(pt.getX(), pt.getY());
-                }
+                //}
             }
         }
         path.closePath();
