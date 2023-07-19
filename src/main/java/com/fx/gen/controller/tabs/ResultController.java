@@ -189,7 +189,7 @@ public class ResultController implements Initializable, PopulateInterface {
 
         fileChooser.setInitialDirectory(new File(borderDir));
         fileChooser.setTitle(bundle.getString("dlg.open.border"));
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("CSV files (*.csv)", "*.csv");
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("CSV files (*.csv)", "*.csv", "*.txt");
         fileChooser.getExtensionFilters().add(extFilter);
         List<File> borderList = fileChooser.showOpenMultipleDialog(mainController.getStage());
 
@@ -329,7 +329,7 @@ public class ResultController implements Initializable, PopulateInterface {
                 break;
             }
         }
-        for (int i = painters.size()-1; i >= 0; i--) {
+        for (int i = painters.size() - 1; i >= 0; i--) {
             Painter painter = painters.get(i);
             if (painter instanceof PosPainter) {
                 if (isPresent) {

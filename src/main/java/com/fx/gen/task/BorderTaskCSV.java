@@ -60,14 +60,14 @@ public class BorderTaskCSV extends Task<Integer> {
             if (stop) {
                 break;
             }
-            
+
             List<GeoPosition> track = new ArrayList<>();
-            
+
             try {
                 String borderFile = borderList.get(i).getAbsolutePath();
                 BufferedReader bufferedReader = new BufferedReader(new FileReader(borderFile));
                 while (bufferedReader.ready()) {
-                    String line[] = bufferedReader.readLine().split(";");
+                    String line[] = bufferedReader.readLine().trim().split("[\\s;]+");
                     double lonCsv = Double.valueOf(line[0]);
                     double latCsv = Double.valueOf(line[1]);
                     track.add(new GeoPosition(latCsv, lonCsv));
