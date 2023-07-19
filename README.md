@@ -1,5 +1,7 @@
 # Border Generator 1.0.0
 
+![image](https://github.com/NeuralCortex/Border_Generator/blob/main/images/border.png)
+
 ## Funktionsweise des Programms
 
 Der Border Generator ist ein JavaFX-Projekt, welches erstmalig ermöglicht, auf eine standartisierte Weise,</br>
