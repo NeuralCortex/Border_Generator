@@ -10,11 +10,17 @@ import com.fx.gen.painter.PosPainter;
 import com.fx.gen.pojo.BorderPOJO;
 import com.fx.gen.task.BorderTaskCSV;
 import com.fx.gen.task.BorderTaskHCM;
+import com.fx.gen.tools.HelperFunctions;
 import com.fx.gen.tools.MousePopupListener;
 import com.fx.gen.tools.MousePositionListener;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.io.BufferedWriter;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -27,6 +33,7 @@ import javafx.embed.swing.SwingNode;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -81,6 +88,14 @@ public class ResultController implements Initializable, PopulateInterface {
     private Button btnHCM;
     @FXML
     private Button btnReset;
+    @FXML
+    private Button btnHcmExport;
+    @FXML
+    private Button btnCsvExport;
+    @FXML
+    private CheckBox cbInvertCSV;
+    @FXML
+    private CheckBox cbInvertHCM;
 
     private static final Logger _log = LogManager.getLogger(ResultController.class);
 
@@ -105,12 +120,18 @@ public class ResultController implements Initializable, PopulateInterface {
 
         lbInfo.setId("hec-text-white");
         lbScale.setId("hec-text-white");
+        cbInvertCSV.setId("hec-text-white");
+        cbInvertHCM.setId("hec-text-white");
 
         lbInfo.setText(bundle.getString("lb.csv.border"));
         lbScale.setText(bundle.getString("lb.hcm.border"));
         btnCSV.setText(bundle.getString("btn.csv.import"));
         btnHCM.setText(bundle.getString("btn.hcm.import"));
         btnReset.setText(bundle.getString("btn.reset"));
+        btnCsvExport.setText(bundle.getString("btn.csv.export"));
+        btnHcmExport.setText(bundle.getString("btn.hcm.export"));
+        cbInvertCSV.setText(bundle.getString("invert"));
+        cbInvertHCM.setText(bundle.getString("invert"));
 
         borderPane.widthProperty().addListener(e -> {
             mapViewer.repaint();
@@ -175,6 +196,91 @@ public class ResultController implements Initializable, PopulateInterface {
             CompoundPainter<JXMapViewer> painter = new CompoundPainter<>(painters);
             mapViewer.setOverlayPainter(painter);
             mapViewer.repaint();
+        });
+
+        btnCsvExport.setOnAction(e -> {
+            for (int i = 0; i < tableHCM.getItems().size(); i++) {
+                BorderPOJO borderPOJO = tableHCM.getItems().get(i);
+                //System.out.println(borderData.isUse());
+                if (borderPOJO.isActive()) {
+                    try {
+                        String csvFileName = borderPOJO.getFileName() + ".csv";
+
+                        File dir = new File(Globals.CSV_PATH);
+                        if (!dir.exists()) {
+                            dir.mkdir();
+                        }
+
+                        BufferedWriter writer = new BufferedWriter(new FileWriter(Globals.CSV_PATH + csvFileName));
+                        borderPOJO.getBorderRoutePainter().getTrack().forEach(c -> {
+                            try {
+                                writer.write(c.getLongitude() + ";" + c.getLatitude() + "\n");
+                            } catch (IOException ex) {
+                                _log.error(ex.getMessage());
+                            }
+                        });
+                        writer.close();
+                    } catch (Exception ex) {
+                        _log.error(ex.getMessage());
+                    }
+                }
+            }
+        });
+
+        btnHcmExport.setOnAction(e -> {
+            for (int i = 0; i < tableCSV.getItems().size(); i++) {
+                BorderPOJO borderPOJO = tableCSV.getItems().get(i);
+                //System.out.println(borderData.isUse());
+                if (borderPOJO.isActive()) {
+                    try {
+                        String fileName = borderPOJO.getFileName().split("\\.")[0];
+                        String dist = borderPOJO.getFileName().split("\\.")[1];
+                        String hcmFileName = fileName + "." + dist;
+
+                        File dir = new File(Globals.HCM_PATH);
+                        if (!dir.exists()) {
+                            dir.mkdir();
+                        }
+
+                        DataOutputStream dataOutputStream = new DataOutputStream(new FileOutputStream(Globals.HCM_PATH + hcmFileName));
+                        for (GeoPosition geoPosition : borderPOJO.getBorderRoutePainter().getTrack()) {
+                            double corLon = geoPosition.getLongitude() / (180.0 / Math.PI);
+                            double corLat = geoPosition.getLatitude() / (180.0 / Math.PI);
+
+                            byte[] bytesLon = new byte[8];
+                            byte[] bytesLat = new byte[8];
+
+                            dataOutputStream.write(HelperFunctions.doubleToByte(corLon, Globals.BYTE_ORDER));
+                            dataOutputStream.write(HelperFunctions.doubleToByte(corLat, Globals.BYTE_ORDER));
+                        }
+                        dataOutputStream.close();
+                    } catch (Exception ex) {
+                        _log.error(ex.getMessage());
+                    }
+                }
+            }
+        });
+
+        cbInvertCSV.setOnAction(e -> {
+            for (int i = 0; i < tableCSV.getItems().size(); i++) {
+                BorderPOJO borderPOJO = tableCSV.getItems().get(i);
+                if (borderPOJO.isActive()) {
+                    borderPOJO.setActive(false);
+                } else {
+                    borderPOJO.setActive(true);
+                }
+            }
+        });
+
+        cbInvertHCM.setOnAction(e -> {
+            for (int i = 0; i < tableHCM.getItems().size(); i++) {
+                BorderPOJO borderPOJO = tableHCM.getItems().get(i);
+                if (borderPOJO.isActive()) {
+                    borderPOJO.setActive(false);
+                } else {
+                    borderPOJO.setActive(true);
+                }
+            }
         });
     }
 

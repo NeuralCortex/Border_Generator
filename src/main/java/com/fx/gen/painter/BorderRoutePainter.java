@@ -98,4 +98,8 @@ public class BorderRoutePainter implements Painter<JXMapViewer> {
         }
         return String.format("%.2f", length) + " km";
     }
+
+    public List<GeoPosition> getTrack() {
+        return track;
+    }
 }
