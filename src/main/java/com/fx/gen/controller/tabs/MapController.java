@@ -150,8 +150,8 @@ public class MapController implements Initializable, PopulateInterface {
             mapViewer.repaint();
         });
 
-        TableColumn<Address, String> colParam = new TableColumn<>("Parameter");
-        TableColumn<Address, String> colValue = new TableColumn<>("Wert");
+        TableColumn<Address, String> colParam = new TableColumn<>(bundle.getString("col.param"));
+        TableColumn<Address, String> colValue = new TableColumn<>(bundle.getString("col.value"));
 
         colParam.setCellValueFactory(new PropertyValueFactory<>("name"));
         colValue.setCellValueFactory(new PropertyValueFactory<>("wert"));
@@ -173,9 +173,9 @@ public class MapController implements Initializable, PopulateInterface {
 
         tableScale.setEditable(true);
 
-        TableColumn<BorderData, Boolean> colUse = new TableColumn<>("Aktiv");
-        TableColumn<BorderData, Integer> colDist = new TableColumn<>("Abstand in km");
-        TableColumn<BorderData, Color> colColor = new TableColumn<>("Farbe");
+        TableColumn<BorderData, Boolean> colUse = new TableColumn<>(bundle.getString("map.table.active"));
+        TableColumn<BorderData, Integer> colDist = new TableColumn<>(bundle.getString("col.dist"));
+        TableColumn<BorderData, Color> colColor = new TableColumn<>(bundle.getString("map.table.color"));
 
         colDist.setCellValueFactory(new PropertyValueFactory<>("dist"));
         colColor.setCellValueFactory(new PropertyValueFactory<>("color"));

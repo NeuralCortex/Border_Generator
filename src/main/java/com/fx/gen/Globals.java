@@ -1,6 +1,7 @@
 package com.fx.gen;
 
 import java.nio.ByteOrder;
+import java.util.Locale;
 
 public class Globals {
 
@@ -38,6 +39,8 @@ public class Globals {
 
     //Nichts selktiert
     public static final int NO_SEL_VALUE = -9999;
+
+    public static final Locale DEFAULT_LOCALE = Locale.US;
 
     public static final String BUNDLE_PATH = "com.fx.gen.bundle.gen";
     public static final String LOG4J_CONFIG_PATH = System.getProperty("user.dir") + "/config/log4j.xml";
