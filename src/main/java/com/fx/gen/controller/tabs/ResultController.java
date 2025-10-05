@@ -349,10 +349,10 @@ public class ResultController implements Initializable, PopulateInterface {
         labelAttr.setText(defaultTileFactory.getInfo().getAttribution() + " - " + defaultTileFactory.getInfo().getLicense());
 
         // Set the focus
-        GeoPosition zellaMehlis = new GeoPosition(lat, lon);
+        GeoPosition city = new GeoPosition(lat, lon);
 
-        mapViewer.setZoom(7);
-        mapViewer.setAddressLocation(zellaMehlis);
+        mapViewer.setZoom(14);
+        mapViewer.setAddressLocation(city);
 
         // Add interactions
         MouseInputListener mil = new PanMouseInputListener(mapViewer);

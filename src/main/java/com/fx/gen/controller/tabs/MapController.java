@@ -31,6 +31,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -72,6 +74,9 @@ import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.DefaultTileFactory;
 import org.jxmapviewer.viewer.GeoPosition;
 import org.jxmapviewer.viewer.TileFactoryInfo;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LinearRing;
 
 /**
  *
@@ -117,6 +122,7 @@ public class MapController implements Initializable, PopulateInterface {
 
     private final double lon = 10.671745101119196;
     private final double lat = 50.661742127393836;
+    private GeoPosition marker;
 
     private HashMap<Double, List<Position>> mapLoad = new HashMap<>();
 
@@ -389,7 +395,7 @@ public class MapController implements Initializable, PopulateInterface {
 
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-            String state = address.getWert().replace(" ", "%20");
+            String state = URLEncoder.encode(address.getWert(), StandardCharsets.UTF_8);
             String baseURL = "https://nominatim.openstreetmap.org/search?" + address.getName().toLowerCase() + "=" + state + "&polygon_geojson=1&format=geojson";
 
             JsonNode root;
@@ -433,13 +439,14 @@ public class MapController implements Initializable, PopulateInterface {
                         idx++;
                     }
                 }
-                int max = -9999;
                 int idx = 0;
+
                 for (Integer key : mapBorder.keySet()) {
                     List<Position> list = mapBorder.get(key);
-                    if (list.size() > max) {
-                        max = list.size();
+
+                    if (isGeoPositionInsidePolygon(marker, list)) {
                         idx = key;
+                        break;
                     }
                 }
 
@@ -449,6 +456,36 @@ public class MapController implements Initializable, PopulateInterface {
                 ex.printStackTrace();
             }
         }
+    }
+
+    private boolean isGeoPositionInsidePolygon(GeoPosition point, List<Position> polygonPoints) {
+        // Validate input
+        if (polygonPoints == null || polygonPoints.size() < 3) {
+            System.out.println("Error: Invalid polygon (needs at least 3 points).");
+            return false;
+        }
+
+        // Create JTS GeometryFactory
+        GeometryFactory factory = new GeometryFactory();
+
+        // Convert List<PositionPOJO> to JTS Coordinate array
+        Coordinate[] coordinates = new Coordinate[polygonPoints.size() + 1];
+        for (int i = 0; i < polygonPoints.size(); i++) {
+            Position pojo = polygonPoints.get(i);
+            coordinates[i] = new Coordinate(pojo.getLon(), pojo.getLat());
+        }
+        // Close the polygon by repeating the first point
+        coordinates[polygonPoints.size()] = coordinates[0];
+
+        // Create a LinearRing and Polygon
+        LinearRing ring = factory.createLinearRing(coordinates);
+        org.locationtech.jts.geom.Polygon polygon = factory.createPolygon(ring, null);
+
+        // Convert GeoPosition to JTS Point
+        org.locationtech.jts.geom.Point jtsPoint = factory.createPoint(new Coordinate(point.getLongitude(), point.getLatitude()));
+
+        // Check if the point is inside the polygon
+        return jtsPoint.within(polygon);
     }
 
     private void initOsmMap(ResourceBundle bundle) {
@@ -464,10 +501,10 @@ public class MapController implements Initializable, PopulateInterface {
         labelAttr.setText(defaultTileFactory.getInfo().getAttribution() + " - " + defaultTileFactory.getInfo().getLicense());
 
         // Set the focus
-        GeoPosition zellaMehlis = new GeoPosition(lat, lon);
+        GeoPosition city = new GeoPosition(lat, lon);
 
-        mapViewer.setZoom(7);
-        mapViewer.setAddressLocation(zellaMehlis);
+        mapViewer.setZoom(14);
+        mapViewer.setAddressLocation(city);
 
         // Add interactions
         MouseInputListener mil = new PanMouseInputListener(mapViewer);
@@ -520,6 +557,7 @@ public class MapController implements Initializable, PopulateInterface {
             });
 
             getGeoInfos(geoPosition);
+            marker = geoPosition;
 
             CompoundPainter<JXMapViewer> painter = new CompoundPainter<>(painters);
             mapViewer.setOverlayPainter(painter);

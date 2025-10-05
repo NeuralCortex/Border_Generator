@@ -339,10 +339,10 @@ public class ConstController implements Initializable, PopulateInterface {
         double lonZM = 10.671745101119196;
         double latZM = 50.661742127393836;
 
-        GeoPosition zellaMehlis = new GeoPosition(latZM, lonZM);
+        GeoPosition city = new GeoPosition(latZM, lonZM);
 
-        mapViewer.setZoom(7);
-        mapViewer.setAddressLocation(zellaMehlis);
+        mapViewer.setZoom(14);
+        mapViewer.setAddressLocation(city);
 
         // Add interactions
         initPainter();
